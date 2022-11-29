@@ -81,6 +81,58 @@ CREATE TABLE [dbo].[OrdersInsertLog](
 	[ShipCountry] [nvarchar](15),
 	Waktu_insert datetime)
 
+-- TABLE UNTUK LOG PRODUCT
+CREATE TABLE [dbo].[ProductsInsertLog](
+	[ProductID] [int] ,
+	[ProductName] [nvarchar](40) ,
+	[SupplierID] [int] ,
+	[CategoryID] [int] ,
+	[QuantityPerUnit] [nvarchar](20),
+	[UnitPrice] [money] ,
+	[UnitsInStock] [smallint] ,
+	[UnitsOnOrder] [smallint] ,
+	[ReorderLevel] [smallint] ,
+	[Discontinued] [bit] ,
+	Waktu_Insert datetime)
+
+	
+-- TABLE UNTUK LOG REGION
+CREATE TABLE [dbo].[RegionInsertLog](
+	[RegionID] [int],
+	[RegionDescription] [nchar](50),
+	Waktu_Insert datetime)
+
+-- TABLE UNTUK LOG SHIPPERS
+CREATE TABLE [dbo].[ShippersInsertLog](
+	[ShipperID] [int],
+	[CompanyName] [nvarchar](40),
+	[Phone] [nvarchar](24) ,
+	Waktu_Insert datetime)
+
+-- TABLE UNTUK LOG SUPPLIERS
+CREATE TABLE [dbo].[SuppliersInsertLog](
+	[SupplierID] [int],
+	[CompanyName] [nvarchar](40),
+	[ContactName] [nvarchar](30),
+	[ContactTitle] [nvarchar](30),
+	[Address] [nvarchar](60),
+	[City] [nvarchar](15) ,
+	[Region] [nvarchar](15) ,
+	[PostalCode] [nvarchar](10),
+	[Country] [nvarchar](15),
+	[Phone] [nvarchar](24),
+	[Fax] [nvarchar](24) ,
+	[HomePage] [ntext] ,
+	Waktu_Insert datetime)
+
+-- TABLE UNTUK TERRITORIES
+
+CREATE TABLE [dbo].[TerritoriesInsertLog](
+	[TerritoryID] [nvarchar](20),
+	[TerritoryDescription] [nchar](50),
+	[RegionID] [int] ,
+	Waktu_Insert datetime)
+
 
 -- TRIGGER INSERT Categories
 CREATE TRIGGER CaptureCategoriesInsert 
@@ -181,31 +233,42 @@ insert into Customers (CustomerID,CompanyName,ContactName,ContactTitle,Address,C
 VALUES('FRHNT', 'BANDUNG SEJAHTERA', 'Firhan Imam H','Owner','Suryalaya III No. 10','Bandung','Jawab barat','431412','Indonesia','082131241231','0253-34313')
 
 
+-- TRIGGER UNTUK EMPLOYEE 
+
 CREATE TRIGGER CaptureEmployeesInsert 
 ON dbo.Employees 
 AFTER INSERT
 AS
 BEGIN
-	
+    declare @EmployeeID int
+    select @EmployeeID = inserted.EmployeeID
+    from inserted
+    insert into EmployeesInsertLog
+    select *,CURRENT_TIMESTAMP from dbo.Employees
+    where @EmployeeID not in (
+            select @EmployeeID from EmployeesInsertLog e
+            where e.EmployeeID=Employees.EmployeeID)
 END
 
 -- TRIGGER UNTUK EMPLOYEE TERRITORIES
+
 
 CREATE TRIGGER CaptureEmployeeTerritoriesInsert 
 ON dbo.EmployeeTerritories 
 AFTER INSERT
 AS
 BEGIN
-	declare @EmployeeID int
-	declare @TerritoryID varchar(20)
-
-	select @EmployeeID = inserted.EmployeeID,
-		   @TerritoryID=inserted.TerritoryID
-	from inserted
-
-	insert into EmployeeTerritoriesInsertLog(EmployeeID,TerritoryID,waktu_Insert) 
-	VALUES (@EmployeeID,@TerritoryID,CURRENT_TIMESTAMP)
+	insert into EmployeeTerritoriesInsertLog
+	select *,CURRENT_TIMESTAMP from EmployeeTerritories
+	where EmployeeID not in (
+			select EmployeeID from EmployeeTerritoriesInsertLog e
+			where e.EmployeeID = EmployeeTerritories.EmployeeID)
+			and
+		  TerritoryID not in(
+			select TerritoryID from EmployeeTerritoriesInsertLog e
+			where e.TerritoryID = EmployeeTerritories.TerritoryID)
 END
+
 
 -- TRIGGER UNTUK ORDER DETAILS
 
@@ -241,36 +304,58 @@ BEGIN
 		where o.OrderID = Orders.OrderID)
 END
 
+--TRIGGER UNTUK PRODUCT
+
 CREATE TRIGGER CaptureProductsInsert 
 ON dbo.Products 
 AFTER INSERT
 AS
 BEGIN
-
+	INSERT INTO ProductsInsertLog
+	select *, CURRENT_TIMESTAMP from Products
+	where ProductID not in (
+		Select ProductID from ProductsInsertLog p
+		where p.ProductID = Products.ProductID)
 END
+
+-- TRIGGER UNTUK REGION
+
 
 CREATE TRIGGER CaptureRegionInsert 
 ON dbo.Region 
 AFTER INSERT
 AS
 BEGIN
-
+	insert into RegionInsertLog
+	select *,CURRENT_TIMESTAMP from Region
+	where RegionID not in (select RegionID from RegionInsertLog r
+							where r.RegionID= Region.RegionID)
 END
+
+--TRIGGER UNTUK SHIPPERS
 
 CREATE TRIGGER CaptureShippersInsert 
 ON dbo.Shippers 
 AFTER INSERT
 AS
 BEGIN
-
+	insert into ShippersInsertLog
+	select *,CURRENT_TIMESTAMP from Shippers
+	where ShipperID not in (select ShipperID from ShippersInsertLog s
+							where s.ShipperID = Shippers.ShipperID)
 END
+
+-- CREATE TRIGGER  SUPPLIERS
 
 CREATE TRIGGER CaptureSuppliersInsert 
 ON dbo.Suppliers 
 AFTER INSERT
 AS
 BEGIN
-
+	insert into SuppliersInsertLog
+	select *,CURRENT_TIMESTAMP from Suppliers
+	where SupplierID not in (select SupplierID from SuppliersInsertLog s
+							where s.SupplierID = Suppliers.SupplierID)
 END
 
 CREATE TRIGGER CaptureTerritoriesInsert 
@@ -278,5 +363,8 @@ ON dbo.Territories
 AFTER INSERT
 AS
 BEGIN
-
+	insert into TerritoriesInsertLog
+	select *,CURRENT_TIMESTAMP from Territories
+	where TerritoryID not in (select TerritoryID from TerritoriesInsertLog t
+							where t.TerritoryID = Territories.TerritoryID)
 END
