@@ -44,14 +44,35 @@ BEGIN
 	values(@categoryID, @NewCategoryName,@OldCategoryName,@NewDescription,@OldDescription,@NewPicture,@OldPicture,CURRENT_TIMESTAMP)
 END
 
--- Karena cuman PK, APAKH BISA DIUPDATE????
+
+CREATE TABLE CustomerDemoUpdateLog(
+	NewCustomerID nchar(5),
+	OldCustomerID nchar(5),
+	NewCustomerTypeID nchar(10),
+	OldCustomerTypeID nchar(10),
+	Waktu_Update datetime
+)
 
 CREATE TRIGGER CaptureCustomerCustomerDemoUpdate 
 ON dbo.CustomerCustomerDemo 
 AFTER UPDATE
 AS
 BEGIN
+	declare @OldCustomerID nchar(5)
+	declare @NewCustomerID nchar(5)
+	declare @NewCustomerTypeID nchar(10)
+	declare @OldCustomerTypeID nchar(10)
 
+	select @NewCustomerID = inserted.CustomerID,
+		   @NewCustomerTypeID = inserted.CustomerTypeID
+	from inserted
+
+	
+	select @OldCustomerID = deleted.CustomerID,
+		   @OldCustomerTypeID = deleted.CustomerTypeID
+	from deleted
+
+	insert into CustomerDemoUpdateLog values (@NewCustomerID,@OldCustomerID,@NewCustomerTypeID,@OldCustomerTypeID,CURRENT_TIMESTAMP)
 END
 
 -- TABLE UNTUK CUSTOMER DEMOGRAPHIC UPDATE LOG
@@ -294,14 +315,37 @@ BEGIN
 	values(@EmployeeID,@NewLastName,@OldLastName,@NewFirstName,@OldFirstName,@NewTitle,@OldTitle,@NewTitleOfCourtesy,@OldTitleOfCourtesy,@NewBirthDate,@OldBirthDate,@NewHireDate,@OldHireDate,@NewAddress,@OldAddress,@NewCity,@OldCity,@NewRegion,@OldRegion,@NewPostalCode,@OldPostalCode,@NewCountry,@OldCountry,@NewHomePhone,@OldHomePhone,@NewExtension,@OldExtension,@NewPhoto,@OldPhoto,@NewNotes,@OldNotes,@NewReportsTo,@OldReportsTo,@NewPhotoPath,@OldPhotoPath,CURRENT_TIMESTAMP)
 END
 
-CREATE TABLE EmployeeTerriroriesUpdateLog(
-	OldEmployeeID int,
+CREATE TABLE EmployeeTerritoriesUpdateLog(
 	NewEmployeeID int,
-	OldTerritoryID nvarchar(20),
+	OldEmployeeID int,
 	NewTerritoryID nvarchar(20),
+	OldTerritoryID nvarchar(20),
 	Waktu_Update datetime)
+ 
+
 
 -- TRIGGER UNTUK Employee TERRITORIES UPDATE
+CREATE TRIGGER CaptureEmployeeTerritoriesUpdate
+ON dbo.EmployeeTerritories
+AFTER UPDATE
+AS
+BEGIN
+	declare @NewEmployeeID int
+	declare @OldEmployeeID int
+	declare @NewTerritoryID nvarchar(20)
+	declare @OldTerritoryID nvarchar(20)
+
+	select @NewEmployeeID = inserted.employeeID,
+		   @NewTerritoryID = inserted.TerritoryID
+	from inserted
+
+	select @OldEmployeeID = deleted.employeeID,
+		   @OldTerritoryID = deleted.TerritoryID
+	from deleted
+
+	insert into EmployeeTerritoriesUpdateLog values (@NewEmployeeID,@OldEmployeeID,@NewTerritoryID,@OldTerritoryID,CURRENT_TIMESTAMP)
+
+END
 
 
 CREATE TABLE OrderDetailsUpdateLog(
@@ -315,6 +359,7 @@ CREATE TABLE OrderDetailsUpdateLog(
 	NewDiscount real,
 	waktu_Update datetime,
 )
+
 
 
 
