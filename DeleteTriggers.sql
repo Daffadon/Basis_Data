@@ -387,3 +387,126 @@ declare @SupplierID int
 	insert into SuppliersDeleteLog(SupplierID,CompanyName,ContactName,ContactTitle,Address,City,Region,PostalCode,Country,Phone,Fax,HomePage,WAKTU_DELETE)
 	values(@SupplierID,@CompanyName,@ContactName,@ContactTitle,@Address,@City,@Region,@PostalCode,@Country,@Phone,@Fax,@HomePage,CURRENT_TIMESTAMP)
 END
+
+-- TABLE DELETE UNTUK CUSTOMER
+CREATE TABLE CustomersDeleteLog (
+	[CustomerID] [nchar](5) ,
+	[CompanyName] [nvarchar](40) ,
+	[ContactName] [nvarchar](30) ,
+	[ContactTitle] [nvarchar](30) ,
+	[Address] [nvarchar](60) ,
+	[City] [nvarchar](15) ,
+	[Region] [nvarchar](15) ,
+	[PostalCode] [nvarchar](10),
+	[Country] [nvarchar](15),
+	[Phone] [nvarchar](24),
+	[Fax] [nvarchar](24),
+	Waktu_Delete datetime)
+
+-- TRIGGER DELETE UNTUK CUSTOMER
+CREATE TRIGGER CaptureCustomersDelete 
+ON dbo.Customers 
+AFTER DELETE
+AS
+BEGIN
+	declare @CustomerID char(5)
+	declare @CompanyName varchar(40)
+	declare @ContactName varchar(30)
+	declare @ContactTitle varchar(30)
+	declare @Address varchar(60)
+	declare @City varchar(15)
+	declare @Region varchar(15)
+	declare @PostalCode varchar(10)
+	declare @Country varchar(15)
+	declare @Phone varchar(24)
+	declare @Fax varchar(24)
+	
+
+	select @CustomerID = deleted.customerID,
+		   @CompanyName = deleted.CompanyName,
+		   @ContactName = deleted.ContactName,
+		   @ContactTitle = deleted.ContactTitle,
+		   @Address = deleted.Address,
+		   @City=deleted.City,
+		   @Region=deleted.Region,
+		   @PostalCode=deleted.PostalCode,
+		   @Country=deleted.Country,
+		   @Phone=deleted.Phone,
+		   @Fax=deleted.Fax
+	from deleted
+
+	insert into CustomersInsertLog(CustomerID,CompanyName,ContactName,ContactTitle,Address,City,region,PostalCode,Country,Phone,Fax, Waktu_Delete) 
+	values (@CustomerID,@CompanyName,@ContactName,@ContactTitle,@Address,@City,@region,@PostalCode,@Country,@Phone,@Fax,CURRENT_TIMESTAMP)
+
+END
+
+-- TABLE DELETE UNTUK CUSTOMER DEMO
+CREATE TABLE CustomerCustomerDemoDeleteLog(
+	[CustomerID] [nchar](5),
+	[CustomerTypeID] [nchar](10),
+	Waktu_Delete datetime)
+
+-- TRIGGER DELETE UNTUK CUSTOMER DEMO
+CREATE TRIGGER CaptureCustomerCustomerDemoDelete
+ON dbo.CustomerCustomerDemo
+AFTER DELETE
+AS
+BEGIN
+	declare @CustomerID nchar(5)
+	declare @CustomerTypeID nchar(5)
+
+	select	@CustomerID = deleted.CustomerID,
+			@CustomerTypeID = deleted.CustomerTypeID
+	from deleted
+
+	insert into CustomerCustomerDemoDeleteLog(CustomerID, CustomerTypeID)
+	values(@CustomerID, @CustomerTypeID, CURRENT_TIMESTAMP)
+END
+
+-- TABLE DELETE UNTUK CUSTOMER DEMOGRAPHICS
+CREATE TABLE [dbo].[CustomerDemographics](
+	[CustomerTypeID] [nchar](10),
+	[CustomerDesc] nvarchar(MAX),
+	Waktu_Delete datetime
+)
+
+-- TRIGGER DELETE UNTUK CUSTOMER DEMOGRAPHICS
+CREATE TRIGGER CaptureCustomerCustomerDemographics
+ON CustomerDemographics
+AFTER DELETE
+AS
+BEGIN
+	declare @CustomerTypeID nchar(10)
+	declare @CustomerDesc nvarchar(MAX)
+	
+	select	@CustomerTypeID = deleted.CustomerTypeID,
+			@CustomerDesc = deleted.CustomerDesc
+	from deleted
+
+	insert into CustomerDemographicsDeleteLog(CustomerTypeID, CustomerDesc, Waktu_Delete)
+	values(@CustomerTypeID, @CustomerDesc, CURRENT_TIMESTAMP)
+END
+
+-- TABLE DELETE UNTUK EMPLOYEE TERRITORIES
+CREATE TABLE EmployeeTerritoriesDeleteLog(
+	[EmployeeID] [int],
+	[TerritoryID] [nvarchar](20),
+	Waktu_Delete datetime
+)
+
+-- TRIGGER DELETE UNTUK EMPLOYEE TERRIOTORIES
+CREATE TRIGGER CaptureEmployeeTerritories
+ON EmployeeTerritories
+AFTER DELETE
+AS
+BEGIN
+	declare @EmployeeID int
+	declare @TerritoryID NVARCHAR(20)
+
+	select	@EmployeeID = deleted.EmployeeID,
+			@TerritoryID = deleted.TerritoryID
+	from deleted
+
+	insert into EmployeeTerritoriesDeleteLog(EmployeeID, TerritoryID, Waktu_Delete)
+	values(@EmployeeID, @TerritoryID, CURRENT_TIMESTAMP)
+END
