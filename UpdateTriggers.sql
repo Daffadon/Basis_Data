@@ -207,6 +207,8 @@ CREATE TABLE [dbo].[EmployeesUpdateLog](
 	Waktu_Update datetime
 )
 
+-- TRIGGER UNTUK EMPLOYEES UPDATE
+
 CREATE TRIGGER CaptureEmployeesUpdate
 ON dbo.Employees
 AFTER UPDATE
@@ -292,27 +294,29 @@ BEGIN
 	values(@EmployeeID,@NewLastName,@OldLastName,@NewFirstName,@OldFirstName,@NewTitle,@OldTitle,@NewTitleOfCourtesy,@OldTitleOfCourtesy,@NewBirthDate,@OldBirthDate,@NewHireDate,@OldHireDate,@NewAddress,@OldAddress,@NewCity,@OldCity,@NewRegion,@OldRegion,@NewPostalCode,@OldPostalCode,@NewCountry,@OldCountry,@NewHomePhone,@OldHomePhone,@NewExtension,@OldExtension,@NewPhoto,@OldPhoto,@NewNotes,@OldNotes,@NewReportsTo,@OldReportsTo,@NewPhotoPath,@OldPhotoPath,CURRENT_TIMESTAMP)
 END
 
-CREATE TRIGGER CaptureEmployeeTerritoriesUpdate
-ON dbo.EmployeeTerritories
-AFTER UPDATE
-AS
-BEGIN
-	declare @OldEmployeeID int
-	declare @NewEmployeeID int
-	declare @OldTerritoryID nvarchar(20)
-	declare @NewTerritoryID nvarchar(20)
-	declare @Waktu_Update datetime
+CREATE TABLE EmployeeTerriroriesUpdateLog(
+	OldEmployeeID int,
+	NewEmployeeID int,
+	OldTerritoryID nvarchar(20),
+	NewTerritoryID nvarchar(20),
+	Waktu_Update datetime)
 
-	select	@NewEmployeeID = inserted.EmployeeID,
-			@NewTerritoryID = inserted.TerritoryID
-	from inserted
+-- TRIGGER UNTUK Employee TERRITORIES UPDATE
 
-	select	@OldEmployeeID = d.EmployeeID,
-			@OldTerritoryID = d.TerritoryID
-	from deleted d
 
-	insert into EmployeeTerriroriesUpdateLog
-	values(@NewEmployeeID,@OldEmployeeID,@NewTerritoryID,@OldTerritoryID,CURRENT_TIMESTAMP)
+CREATE TABLE OrderDetailsUpdateLog(
+	OrderID int,
+	ProductID int,
+	OldUnitPrice money,
+	NewUnitPrice money,
+	OldQuantity smallint,
+	NewQuantity smallint,
+	OldDiscount real,
+	NewDiscount real,
+	waktu_Update datetime,
+)
+
+
 
 CREATE TRIGGER CaptureOrderDetailsUpdate
 ON dbo.[Order Details]
@@ -346,12 +350,46 @@ BEGIN
 	values(@OrderID,@ProductID,@NewUnitPrice,@OldUnitPrice,@NewQuantity,@OldQuantity,@NewDiscount,@OldDiscount,CURRENT_TIMESTAMP)
 END
 
+CREATE TABLE OrdersUpdateLog(
+
+	OrderID int,
+	OldCustomerID nchar(5),
+	NewCustomerID nchar(5),
+	OldEmployeeID int,
+	NewEmployeeID int,
+	OldOrderDate datetime,
+	NewOrderDate datetime,
+	OldRequiredDate datetime,
+	NewRequiredDate datetime,
+	OldShippedDate datetime,
+	NewShippedDate datetime,
+	OldShipVia int,
+	NewShipVia int,
+	OldFreight money,
+	NewFreight money,
+	OldShipName nvarchar(40),
+	NewShipName nvarchar(40),
+	OldShipAddress nvarchar(60),
+	NewShipAddress nvarchar(60),
+	OldShipCity nvarchar(15),
+	NewShipCity nvarchar(15),
+	OldShipRegion nvarchar(15),
+	NewShipRegion nvarchar(15),
+	OldShipPostalCode nvarchar(10),
+	NewShipPostalCode nvarchar(10),
+	OldShipCountry nvarchar(15),
+	NewShipCountry nvarchar(15),
+	Waktu_Update datetime
+)
+
+-- TRIGGER UNTUK ORDERS UPDATE
+
 CREATE TRIGGER CaptureOrdersUpdate
 ON dbo.Orders
 AFTER UPDATE
 AS
 BEGIN
-	declare OrderID int
+	declare @OrderID int
 	declare @OldCustomerID nchar(5)
 	declare @NewCustomerID nchar(5)
 	declare @OldEmployeeID int
@@ -396,7 +434,7 @@ BEGIN
 			@NewShipCountry = inserted.ShipCountry
 	 from inserted
 
-	select	@OrderID = d.OrderID
+	select	@OrderID = d.OrderID,
 			@OldCustomerID = d.CustomerID,
 			@OldEmployeeID = d.EmployeeID,
 			@OldOrderDate = d.OrderDate,
@@ -413,8 +451,32 @@ BEGIN
 	 from deleted d
 
 	insert into OrdersUpdateLog
-	values(OrderID,@NewCustomerID,@OldCustomerID,@NewEmployeeID,@OldEmployeeID,@NewOrderDate,@OldOrderDate,@NewRequiredDate,@OldRequiredDate,@NewShippedDate,@OldShippedDate,@NewShipVia,@OldShipVia,@NewFreight,@OldFreight,@NewShipName,@OldShipName,@NewShipAddress,@OldShipAddress,@NewShipCity,@OldShipCity,@NewShipRegion,@OldShipRegion,@NewShipPostalCode,@OldShipPostalCode,@NewShipCountry,@OldShipCountry,CURRENT_TIMESTAMP)
+	values(@OrderID,@NewCustomerID,@OldCustomerID,@NewEmployeeID,@OldEmployeeID,@NewOrderDate,@OldOrderDate,@NewRequiredDate,@OldRequiredDate,@NewShippedDate,@OldShippedDate,@NewShipVia,@OldShipVia,@NewFreight,@OldFreight,@NewShipName,@OldShipName,@NewShipAddress,@OldShipAddress,@NewShipCity,@OldShipCity,@NewShipRegion,@OldShipRegion,@NewShipPostalCode,@OldShipPostalCode,@NewShipCountry,@OldShipCountry,CURRENT_TIMESTAMP)
+END
 
+
+CREATE TABLE  ProductsUpdateLog(
+	ProductID int,
+	OldProductName nvarchar(40),
+	NewProductName nvarchar(40),
+	OldSupplierID int,
+	NewSupplierID int,
+	OldCategoryID int,
+	NewCategoryID int,
+	OldQuantityPerUnit nvarchar(20),
+	NewQuantityPerUnit nvarchar(20),
+	OldUnitPrice money,
+	NewUnitPrice money,
+	OldUnitsInStock smallint,
+	NewUnitsInStock smallint,
+	OldUnitsOnOrder smallint,
+	NewUnitsOnOrder smallint,
+	OldReorderLevel smallint,
+	NewReorderLevel smallint,
+	OldDiscontinued bit,
+	NewDiscontinued bit,
+	Waktu_Update datetime,
+)
 
 CREATE TRIGGER CaptureProductsUpdate
 ON dbo.Products
@@ -441,7 +503,7 @@ BEGIN
 	declare @OldDiscontinued bit
 	declare @NewDiscontinued bit
 
-	select	@ProductID = inserted.ProductID
+	select	@ProductID = inserted.ProductID,
 			@NewProductName = inserted.ProductName,
 			@NewSupplierID = inserted.SupplierID,
 			@NewCategoryID = inserted.CategoryID,
@@ -453,7 +515,7 @@ BEGIN
 			@NewDiscontinued = inserted.Discontinued
 	 from inserted
 
-	select	@ProductID = d.ProductID
+	select	@ProductID = d.ProductID,
 			@OldProductName = d.ProductName,
 			@OldSupplierID = d.SupplierID,
 			@OldCategoryID = d.CategoryID,
@@ -469,34 +531,188 @@ BEGIN
 	values(@ProductID,@NewProductName,@OldProductName,@NewSupplierID,@OldSupplierID,@NewCategoryID,@OldCategoryID,@NewQuantityPerUnit,@OldQuantityPerUnit,@NewUnitPrice,@OldUnitPrice,@NewUnitsInStock,@OldUnitsInStock,@NewUnitsOnOrder,@OldUnitsOnOrder,@NewReorderLevel,@OldReorderLevel,@NewDiscontinued,@OldDiscontinued,CURRENT_TIMESTAMP)
 END
 
+
+CREATE TABLE RegionUpdateLog(
+	RegionID int,
+	NewRegionDescription nchar(50),
+	OldRegionDescription nchar(50),
+	Waktu_Update datetime
+)
+
 CREATE TRIGGER CaptureRegionUpdate 
 ON dbo.Region 
 AFTER UPDATE
 AS
 BEGIN
+	declare @RegionID int
+	declare @NewRegionDescription nchar(50)
+	declare @OldRegionDescription nchar(50)
 
+	select @RegionID = inserted.RegionID,
+		   @NewRegionDescription = inserted.RegionDescription
+	from inserted
+
+	select @OldRegionDescription = deleted.RegionDescription 
+	from deleted
+
+	insert into RegionUpdateLog
+	values(@RegionID,@NewRegionDescription,@OldRegionDescription,CURRENT_TIMESTAMP)
 END
+
+
+CREATE TABLE ShipperUpdateLog(
+	ShipperID int,
+	NewCompanyName nvarchar(40),
+	OldCompanyName nvarchar(40),
+	NewPhone nvarchar(40),
+	OldPhone nvarchar(40),
+	Waktu_Update datetime
+)
 
 CREATE TRIGGER CaptureShippersUpdate 
 ON dbo.Shippers 
 AFTER UPDATE
 AS
 BEGIN
+	declare @ShipperID int
+	declare @NewCompanyName nvarchar(40)
+	declare @OldCompanyName nvarchar(40)
+	declare @NewPhone nvarchar(40)
+	declare @OldPhone nvarchar(40)
 
+	
+	select @ShipperID = inserted.ShipperID,
+		   @NewCompanyName = inserted.CompanyName,
+		   @newPhone = inserted.Phone 
+	from inserted
+	
+	select @OldCompanyName = deleted.CompanyName,
+		   @OldPhone = deleted.Phone 
+	from deleted
+
+	insert into ShipperUpdateLog
+	values(@ShipperID,@NewCompanyName,@OldCompanyName,@NewPhone,@OldPhone,CURRENT_TIMESTAMP)
 END
+
+CREATE TABLE [dbo].[SuppliersUpdateLog](
+	[SupplierID] [int],
+	[NewCompanyName] [nvarchar](40),
+	[OldCompanyName] [nvarchar](40),
+	[NewContactName] [nvarchar](30),
+	[OldContactName] [nvarchar](30),
+	[NewContactTitle] [nvarchar](30),
+	[OldContactTitle] [nvarchar](30),
+	[NewAddress] [nvarchar](60),
+	[OldAddress] [nvarchar](60),
+	[NewCity] [nvarchar](15) ,
+	[OldCity] [nvarchar](15) ,
+	[NewRegion] [nvarchar](15) ,
+	[OldRegion] [nvarchar](15) ,
+	[NewPostalCode] [nvarchar](10),
+	[OldPostalCode] [nvarchar](10),
+	[NewCountry] [nvarchar](15),
+	[OldCountry] [nvarchar](15),
+	[NewPhone] [nvarchar](24),
+	[OldPhone] [nvarchar](24),
+	[NewFax] [nvarchar](24) ,
+	[OldFax] [nvarchar](24) ,
+	[NewHomePage] nvarchar(max) ,
+	[OldHomePage] nvarchar(max) ,
+	Waktu_Update datetime)
+
 
 CREATE TRIGGER CaptureSuppliersUpdate 
 ON dbo.Suppliers 
 AFTER UPDATE
 AS
 BEGIN
+	
+	declare @SupplierID [nchar](5)
+	declare @NewCompanyName [nvarchar](40)
+	declare @OldCompanyName [nvarchar](40)
+	declare @NewContactName [nvarchar](30)
+	declare @OldContactName [nvarchar](30)
+	declare @NewContactTitle [nvarchar](30)
+	declare @OldContactTitle [nvarchar](30)
+	declare @NewAddress [nvarchar](60)
+	declare @OldAddress [nvarchar](60) 
+	declare @NewCity [nvarchar](15)
+	declare @OldCity [nvarchar](15)
+	declare @NewRegion [nvarchar](15)
+	declare @OldRegion [nvarchar](15)
+	declare @NewPostalCode [nvarchar](10)
+	declare @OldPostalCode [nvarchar](10)
+	declare @NewCountry [nvarchar](15)
+	declare @OldCountry [nvarchar](15)
+	declare @NewPhone [nvarchar](24)
+	declare @OldPhone [nvarchar](24)
+	declare @NewFax [nvarchar](24)
+	declare @OldFax [nvarchar](24)
+	declare @NewHomePage nvarchar(max)
+	declare @OldHomePage nvarchar(max)
+
+	select @SupplierID= inserted.SupplierID,
+		   @NewCompanyName = inserted.CompanyName,
+		   @NewContactName = inserted.ContactName,
+		   @NewContactTitle = inserted.ContactTitle,
+		   @NewAddress = inserted.Address,
+		   @NewCity = inserted.City,
+		   @NewRegion = inserted.Region,
+		   @NewPostalCode = inserted.PostalCode,
+		   @NewCountry = inserted.Country,
+		   @NewPhone = inserted.Phone,
+		   @NewFax = inserted.Fax,
+		   @NewHomePage = inserted.HomePage
+	from inserted
+
+	select @SupplierID = d.SupplierID,
+		   @OldCompanyName = d.CompanyName,
+		   @OldContactName = d.ContactName,
+		   @OldContactTitle = d.ContactTitle,
+		   @OldAddress= d.Address,
+		   @OldCity = d.City,
+		   @OldRegion = d.Region,
+		   @OldPostalCode = d.PostalCode,
+		   @OldCountry = d.Country,
+		   @OldPhone = d.Phone,
+		   @OldFax = d.Fax,
+		   @OldHomePage = d.HomePage
+	from deleted d
+
+	insert into SuppliersUpdateLog
+	values (@SupplierID,@NewCompanyName,@OldCompanyName,@NewContactName,@OldContactName,@NewContactTitle,@OldContactName,@NewAddress,@OldAddress,@NewCity,@OldCity,@NewRegion,@OldRegion,@NewPostalCode,@OldPostalCode,@NewCountry,@OldCountry,@NewPhone,@OldPhone,@NewFax,@OldFax,@NewHomePage,@OldHomePage, CURRENT_TIMESTAMP)
 
 END
 
+
+CREATE TABLE TerritoriesUpdateLog(
+	TerritoryID nvarchar(20),
+	NewTerritoryDescription nchar(50),
+	OldTerritoryDescription nchar(50),
+	NewRegionId int,
+	OldRegionId int,
+	Waktu_Update datetime
+)
 CREATE TRIGGER CaptureTerritoriesUpdate 
 ON dbo.Territories 
 AFTER UPDATE
 AS
 BEGIN
+	declare @TerritoryID nvarchar(20)
+	declare @NewTerritoryDescription nchar(50)
+	declare @OldTerritoryDescription nchar(50)
+	declare @NewRegionId int
+	declare @OldRegionId int
 
+	select @TerritoryID  =inserted.TerritoryID,
+		   @NewTerritoryDescription = inserted.TerritoryDescription,
+		   @NewRegionId = inserted.RegionID
+	from inserted
+	
+	select @OldTerritoryDescription = deleted.TerritoryDescription,
+		   @OldRegionId = deleted.RegionID
+	from deleted
+
+	insert into TerritoriesUpdateLog
+	values(@TerritoryID,@NewTerritoryDescription,@OldTerritoryDescription,@NewRegionId,@OldRegionId, CURRENT_TIMESTAMP)
 END
